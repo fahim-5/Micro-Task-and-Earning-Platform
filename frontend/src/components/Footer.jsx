@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -8,28 +8,77 @@ const Footer = () => {
           <div className="space-y-8 xl:col-span-1">
             <Link to="/" className="flex items-center">
               <div className="h-8 w-8 bg-primary-600 rounded-lg"></div>
-              <span className="ml-2 text-xl font-bold">Template</span>
+              <span className="ml-2 text-xl font-bold">
+                Micro-Task and Earning Platform
+              </span>
             </Link>
             <p className="text-gray-400 text-base">
-              A modern React template with Vite and Tailwind CSS for building beautiful web applications.
+              Connect Buyers and Workers: create tasks, complete micro-jobs, and
+              securely earn and withdraw coins.
             </p>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Solutions</h3>
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Company
+                </h3>
                 <ul className="mt-4 space-y-4">
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Marketing</a></li>
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Analytics</a></li>
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Commerce</a></li>
+                  <li>
+                    <a
+                      href="/about"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      About
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/terms"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      Terms
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/privacy"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      Privacy
+                    </a>
+                  </li>
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Support</h3>
+                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
+                  Connect
+                </h3>
                 <ul className="mt-4 space-y-4">
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Pricing</a></li>
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Documentation</a></li>
-                  <li><a href="#" className="text-base text-gray-300 hover:text-white">Guides</a></li>
+                  <li>
+                    <a
+                      href="#"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      LinkedIn
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      Facebook
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://github.com/"
+                      className="text-base text-gray-300 hover:text-white"
+                    >
+                      GitHub
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -37,12 +86,13 @@ const Footer = () => {
         </div>
         <div className="mt-12 border-t border-gray-700 pt-8">
           <p className="text-base text-gray-400 xl:text-center">
-            &copy; {new Date().getFullYear()} React Template. All rights reserved.
+            &copy; {new Date().getFullYear()} Micro-Task and Earning Platform.
+            All rights reserved.
           </p>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

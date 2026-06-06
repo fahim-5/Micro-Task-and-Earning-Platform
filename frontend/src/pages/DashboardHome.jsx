@@ -1,4 +1,4 @@
-import Sidebar from '../components/Sidebar'
+import Sidebar from "../components/Sidebar";
 
 export default function DashboardHome() {
   return (
@@ -13,5 +13,5 @@ export default function DashboardHome() {
         </div>
       </main>
     </div>
-  )
+  );
 }

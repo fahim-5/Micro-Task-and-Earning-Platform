@@ -1,10 +1,10 @@
-import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import Home from './pages/Home'
-import About from './pages/About'
-import DashboardHome from './pages/DashboardHome'
-import { AuthProvider } from './context/AuthProvider'
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import DashboardHome from "./pages/DashboardHome";
+import { AuthProvider } from "./context/AuthProvider";
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
         <Footer />
       </div>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
