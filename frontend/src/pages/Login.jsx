@@ -2,7 +2,11 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -30,6 +34,13 @@ export default function Login() {
         form.password,
       );
       const u = userCredential.user;
+      // store Firebase ID token for backend auth if needed
+      try {
+        const token = await u.getIdToken();
+        localStorage.setItem("token", token);
+      } catch (err) {
+        // ignore token storage failures
+      }
       setUser({
         uid: u.uid,
         email: u.email,
@@ -44,21 +55,23 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
-    // If backend Google OAuth is implemented, this endpoint can redirect or return a token.
     try {
-      const res = await fetch("/api/auth/google", { method: "GET" });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          if (data.data && data.data.user) setUser(data.data.user);
-          navigate("/dashboard");
-        }
-      } else {
-        setError("Google Sign-In not configured on server");
-      }
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const u = result.user;
+      try {
+        const token = await u.getIdToken();
+        localStorage.setItem("token", token);
+      } catch (err) {}
+      setUser({
+        uid: u.uid,
+        email: u.email,
+        name: u.displayName || "",
+        avatar: u.photoURL || "",
+      });
+      navigate("/dashboard");
     } catch (e) {
-      setError("Google Sign-In failed");
+      setError(e?.message || "Google Sign-In failed");
     }
   };
 

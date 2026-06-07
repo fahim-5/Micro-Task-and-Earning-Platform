@@ -12,6 +12,12 @@ export function AuthProvider({ children }) {
     // bootstrap auth state from Firebase
     const unsub = onAuthStateChanged(auth, (u) => {
       if (u) {
+        // persist ID token for backend usage
+        try {
+          u.getIdToken().then((t) => localStorage.setItem("token", t));
+        } catch (err) {
+          // ignore
+        }
         setUser({
           uid: u.uid,
           email: u.email,
@@ -20,6 +26,7 @@ export function AuthProvider({ children }) {
         });
       } else {
         setUser(null);
+        localStorage.removeItem("token");
       }
       setLoading(false);
     });

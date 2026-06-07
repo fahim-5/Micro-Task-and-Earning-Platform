@@ -69,6 +69,13 @@ export default function Register() {
       }
 
       const u = userCredential.user;
+      // store Firebase ID token for backend auth if needed
+      try {
+        const token = await u.getIdToken();
+        localStorage.setItem("token", token);
+      } catch (err) {
+        // ignore token storage failures
+      }
       setUser({
         uid: u.uid,
         email: u.email,
