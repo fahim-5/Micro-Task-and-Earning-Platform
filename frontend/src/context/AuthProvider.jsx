@@ -9,29 +9,46 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // bootstrap auth state from Firebase
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (u) {
-        // persist ID token for backend usage
+    // If a backend token exists, bootstrap from backend /api/auth/me
+    const token = localStorage.getItem("token");
+    let unsub;
+    const bootstrap = async () => {
+      if (token) {
         try {
-          u.getIdToken().then((t) => localStorage.setItem("token", t));
+          const res = await fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (res.ok && data.data && data.data.user) {
+            setUser(data.data.user);
+            setLoading(false);
+            return;
+          }
         } catch (err) {
-          // ignore
+          // fall back to firebase
         }
-        setUser({
-          uid: u.uid,
-          email: u.email,
-          name: u.displayName || "",
-          avatar: u.photoURL || "",
-        });
-      } else {
-        setUser(null);
-        localStorage.removeItem("token");
       }
-      setLoading(false);
-    });
 
-    return () => unsub();
+      // fallback to Firebase auth state
+      unsub = onAuthStateChanged(auth, (u) => {
+        if (u) {
+          setUser({
+            uid: u.uid,
+            email: u.email,
+            name: u.displayName || "",
+            avatar: u.photoURL || "",
+          });
+        } else {
+          setUser(null);
+          localStorage.removeItem("token");
+        }
+        setLoading(false);
+      });
+    };
+
+    bootstrap();
+
+    return () => unsub && unsub();
   }, []);
 
   const logout = async () => {

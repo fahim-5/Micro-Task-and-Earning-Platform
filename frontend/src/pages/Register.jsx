@@ -2,7 +2,6 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
 import { auth } from "../firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -38,50 +37,22 @@ export default function Register() {
 
     try {
       const email = form.email.trim().toLowerCase();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        form.password,
-      );
-      // update profile with name/avatar
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: form.name,
-          photoURL: form.avatar || null,
-        });
-      }
-
-      // Optionally sync to backend user collection
-      try {
-        await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: form.name,
-            email,
-            password: form.password,
-            role: form.role,
-            avatar: form.avatar,
-          }),
-        });
-      } catch (err) {
-        // ignore backend sync errors; user exists in Firebase
-      }
-
-      const u = userCredential.user;
-      // store Firebase ID token for backend auth if needed
-      try {
-        const token = await u.getIdToken();
-        localStorage.setItem("token", token);
-      } catch (err) {
-        // ignore token storage failures
-      }
-      setUser({
-        uid: u.uid,
-        email: u.email,
-        name: u.displayName || "",
-        avatar: u.photoURL || "",
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email,
+          password: form.password,
+          role: form.role,
+          avatar: form.avatar,
+        }),
       });
+      const data = await res.json();
+      if (!res.ok)
+        return setError(data.message || data.error || "Registration failed");
+      if (data.token) localStorage.setItem("token", data.token);
+      if (data.data && data.data.user) setUser(data.data.user);
       navigate("/dashboard");
     } catch (e) {
       const msg = e?.code || e?.message || "Registration failed";

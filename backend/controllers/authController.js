@@ -97,3 +97,39 @@ export const getMe = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Google OAuth sign-in (create or login)
+// @route   POST /api/auth/google
+// @access  Public
+export const googleAuth = async (req, res, next) => {
+  try {
+    const { name, email, avatar, role = "worker" } = req.body;
+    if (!email) return next(new AppError("Email is required", 400));
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return sendTokenResponse(user, 200, res);
+    }
+
+    // Create a random password for account created via Google
+    const randomPassword = Math.random().toString(36).slice(-12);
+
+    let startingCoins = 0;
+    if (role === "worker") startingCoins = 10;
+    if (role === "buyer") startingCoins = 50;
+
+    user = await User.create({
+      name: name || "Google User",
+      email,
+      password: randomPassword,
+      role,
+      avatar,
+      coins: startingCoins,
+    });
+
+    sendTokenResponse(user, 201, res);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -2,11 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
 import { auth } from "../firebase";
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -28,29 +24,19 @@ export default function Login() {
     if (v) return setError(v);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        form.email,
-        form.password,
-      );
-      const u = userCredential.user;
-      // store Firebase ID token for backend auth if needed
-      try {
-        const token = await u.getIdToken();
-        localStorage.setItem("token", token);
-      } catch (err) {
-        // ignore token storage failures
-      }
-      setUser({
-        uid: u.uid,
-        email: u.email,
-        name: u.displayName || "",
-        avatar: u.photoURL || "",
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
+      const data = await res.json();
+      if (!res.ok)
+        return setError(data.message || data.error || "Login failed");
+      if (data.token) localStorage.setItem("token", data.token);
+      if (data.data && data.data.user) setUser(data.data.user);
       navigate("/dashboard");
     } catch (e) {
-      const msg = e?.code || e?.message || "Login failed";
-      setError(msg);
+      setError(e?.message || "Login failed");
     }
   };
 
@@ -59,17 +45,27 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const u = result.user;
+      // Exchange Google user info with backend to create/login user
       try {
-        const token = await u.getIdToken();
-        localStorage.setItem("token", token);
-      } catch (err) {}
-      setUser({
-        uid: u.uid,
-        email: u.email,
-        name: u.displayName || "",
-        avatar: u.photoURL || "",
-      });
-      navigate("/dashboard");
+        const body = {
+          name: u.displayName,
+          email: u.email,
+          avatar: u.photoURL,
+          role: "worker",
+        };
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) return setError(data.message || "Google auth failed");
+        if (data.token) localStorage.setItem("token", data.token);
+        if (data.data && data.data.user) setUser(data.data.user);
+        navigate("/dashboard");
+      } catch (err) {
+        setError("Google Sign-In backend exchange failed");
+      }
     } catch (e) {
       setError(e?.message || "Google Sign-In failed");
     }
