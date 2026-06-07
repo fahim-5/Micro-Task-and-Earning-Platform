@@ -14,6 +14,9 @@ import TaskList from "./worker/TaskList";
 import TaskDetails from "./worker/TaskDetails";
 import MySubmissions from "./worker/MySubmissions";
 import Withdrawals from "./worker/Withdrawals";
+import AdminDashboard from "./admin/AdminDashboard";
+import ManageUsers from "./admin/ManageUsers";
+import ManageTasks from "./admin/ManageTasks";
 
 export default function DashboardHome() {
   const { user } = useContext(AuthContext);
@@ -55,6 +58,13 @@ export default function DashboardHome() {
               <Route path="tasks/:id" element={<TaskDetails />} />
               <Route path="submissions" element={<MySubmissions />} />
               <Route path="withdrawals" element={<Withdrawals />} />
+            </>
+          ) : user?.role === "admin" ? (
+            <>
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="" element={<AdminDashboard />} />
+              <Route path="manage-users" element={<ManageUsers />} />
+              <Route path="manage-tasks" element={<ManageTasks />} />
             </>
           ) : (
             <>

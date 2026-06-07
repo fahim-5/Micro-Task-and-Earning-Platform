@@ -106,7 +106,8 @@ export const deleteTask = async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) return next(new AppError("Task not found", 404));
-    if (String(task.owner) !== String(req.user.id))
+    // allow owner or admin to delete
+    if (String(task.owner) !== String(req.user.id) && req.user.role !== "admin")
       return next(new AppError("Not authorized", 403));
 
     // refund remaining amount
@@ -118,6 +119,17 @@ export const deleteTask = async (req, res, next) => {
 
     await task.remove();
     res.status(200).json({ success: true, data: {} });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const allTasks = async (req, res, next) => {
+  try {
+    const tasks = await Task.find()
+      .sort({ createdAt: -1 })
+      .populate("owner", "name email");
+    res.status(200).json({ success: true, data: { tasks } });
   } catch (err) {
     next(err);
   }

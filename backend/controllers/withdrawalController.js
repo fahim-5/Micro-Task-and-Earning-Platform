@@ -40,9 +40,6 @@ export const createWithdrawal = async (req, res, next) => {
     // convert coins to dollars: 20 coins = 1 dollar
     const withdrawalAmount = Number(coins) / 20;
 
-    user.coins = user.coins - coins;
-    await user.save();
-
     const w = await Withdrawal.create({
       user: user._id,
       worker_name: user.name,

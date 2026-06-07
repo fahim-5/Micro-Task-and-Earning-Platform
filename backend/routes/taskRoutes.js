@@ -7,17 +7,19 @@ import {
   buyerStats,
   availableTasks,
   getTaskById,
+  allTasks,
 } from "../controllers/taskController.js";
-import { protect } from "../middleware/auth.js";
+import { protect, authorize } from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.post("/", protect, createTask);
 router.get("/mine", protect, myTasks);
 router.get("/available", availableTasks);
+router.get("/all", protect, authorize("admin"), allTasks);
+router.get("/stats", protect, buyerStats);
 router.get("/:id", getTaskById);
 router.put("/:id", protect, updateTask);
 router.delete("/:id", protect, deleteTask);
-router.get("/stats", protect, buyerStats);
 
 export default router;
