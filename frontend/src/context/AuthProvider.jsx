@@ -1,4 +1,6 @@
 import { createContext, useState, useEffect } from "react";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 
 export const AuthContext = createContext();
 
@@ -7,30 +9,27 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // bootstrap auth state
-    const fetchMe = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await fetch("/api/auth/me", { headers });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (e) {
+    // bootstrap auth state from Firebase
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (u) {
+        setUser({
+          uid: u.uid,
+          email: u.email,
+          name: u.displayName || "",
+          avatar: u.photoURL || "",
+        });
+      } else {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchMe();
+      setLoading(false);
+    });
+
+    return () => unsub();
   }, []);
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await firebaseSignOut(auth);
     } catch (e) {}
     localStorage.removeItem("token");
     setUser(null);

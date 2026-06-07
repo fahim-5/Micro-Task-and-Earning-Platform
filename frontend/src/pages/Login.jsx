@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
+import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -22,22 +24,22 @@ export default function Login() {
     if (v) return setError(v);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password,
+      );
+      const u = userCredential.user;
+      setUser({
+        uid: u.uid,
+        email: u.email,
+        name: u.displayName || "",
+        avatar: u.photoURL || "",
       });
-      const data = await res.json();
-      if (!res.ok)
-        return setError(
-          data.message || (data.errors && data.errors[0].msg) || "Login failed",
-        );
-
-      if (data.token) localStorage.setItem("token", data.token);
-      if (data.data && data.data.user) setUser(data.data.user);
       navigate("/dashboard");
     } catch (e) {
-      setError("Login failed");
+      const msg = e?.code || e?.message || "Login failed";
+      setError(msg);
     }
   };
 
